@@ -55,6 +55,8 @@ services:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
+    expose:
+      - 5432
     networks:
       - djangonetwork
   redis:
