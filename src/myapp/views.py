@@ -69,7 +69,7 @@ class PessoaView(APIView):
 class AlunoPagamentoView(APIView):
     def get(self, request):
 
-        all_payments = AlunoPagameto.objects.filter(pessoa_aluno_id=3).all()
+        all_payments = AlunoPagameto.objects.filter(pessoa_aluno_id=1).all()
         
         return Response(
             data=[
@@ -79,7 +79,7 @@ class AlunoPagamentoView(APIView):
         )
 
     def post(self, request):
-        pessoa = Pessoa.objects.get(id = 3)
+        pessoa = Pessoa.objects.get(id = 1)
 
         nu = NubankClient()
 
