@@ -1,5 +1,4 @@
 import requests
-import base64
 
 url = "https://api.pagar.me/core/v5/orders"
 

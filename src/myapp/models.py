@@ -36,17 +36,16 @@ class Pessoa(models.Model):
 
 class AlunoPagameto(models.Model):
     class Status(models.IntegerChoices):
-        NAO_INICIADO = 1
-        PAGAMENTO_GERADO = 2
-        PAGAMETO_PENDENTE = 3
-        PAGAMENTO_EFETUADO = 4
+        PAGAMENTO_GERADO = 1
+        PAGAMETO_PENDENTE = 2
+        PAGAMENTO_EFETUADO = 3
 
     pessoa_aluno = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
 
     mes_referencia = models.IntegerField()
     valor = models.FloatField()
     link = models.CharField(max_length=200)
-    status = models.IntegerField(choices=Status.choices, default=Status.NAO_INICIADO)
+    status = models.IntegerField(choices=Status.choices, default=Status.PAGAMENTO_GERADO)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -54,3 +53,15 @@ class AlunoPagameto(models.Model):
     class Meta:
         ordering = ['created_at']
         db_table  = 'aluno_pagamentos'
+
+
+class Configuracoes(models.Model):
+    ano_letivo = models.IntegerField()
+    last_transaction = models.CharField(max_length=1000)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        db_table  = 'configuracoes'

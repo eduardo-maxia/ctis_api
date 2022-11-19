@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Pessoa, AlunoPagameto
 from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, AlunoPagamentoSerializer
-from rest_framework import permissions
 from rest_framework import viewsets
 from django import get_version
 from django.views.generic import TemplateView
@@ -14,6 +13,7 @@ from .tasks import show_hello_world
 from .models import DemoModel
 import requests
 import json
+from datetime import datetime, timezone
 # Create your views here.
 
 
@@ -85,6 +85,8 @@ class PessoaView(APIView):
 
 
 class AlunoPagamentoView(APIView):
+    pix_identifier_prefix = 'ctispagamento'
+
     def get_object(self, pk):
         try:
             return AlunoPagameto.objects.get(pk=pk)
@@ -96,6 +98,31 @@ class AlunoPagamentoView(APIView):
 
         # INDEX
         if pk is None:
+            all_payments = AlunoPagameto.objects.filter(
+                pessoa_aluno_id=_pessoa.id).all()
+
+            # Active User
+            if len(all_payments) > 0:
+                # Check if this month's payment has been issued
+                last_payment = 0
+                for payment in all_payments:
+                    last_payment = max(last_payment, payment.mes_referencia)
+                for month in range(last_payment + 1, datetime.now(timezone.utc).month + 1):
+                    novo_pagamento = AlunoPagameto(
+                        pessoa_aluno_id=_pessoa.id,
+                        mes_referencia=month,
+                        valor=5
+                    )
+                    novo_pagamento.save()
+
+                # Update status for all payments
+                nu = NubankClient()
+                nu.update_all_status(self.pix_identifier_prefix)
+
+            # First time user
+            else:
+                print('first timer')
+
             all_payments = AlunoPagameto.objects.filter(
                 pessoa_aluno_id=_pessoa.id).all()
 
@@ -115,11 +142,11 @@ class AlunoPagamentoView(APIView):
                 "tipo": "cpf",
                 "chave": "082.822.014-05",
                 "nome": "Eduardo dos Anjos Rodrigu",
-                "valor": "115.00",
-                "info": "Eduardo - Outubro",
-                "txid": pagamento.id
-            }, 
-            headers = {
+                "valor": "10.00",
+                "info": f"{_pessoa.nome} - {pagamento.mes_referencia}",
+                "txid": f"{self.pix_identifier_prefix}{pagamento.id}"
+            },
+            headers={
                 "accept": "application/json",
                 "content-type": "application/json"
             },
@@ -127,7 +154,6 @@ class AlunoPagamentoView(APIView):
         )
         pagamento.link = json.loads(response.text)['qrstring']
         pagamento.save()
-
 
         return Response(
             data=AlunoPagamentoSerializer(pagamento).data,
