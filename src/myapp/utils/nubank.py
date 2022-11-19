@@ -55,7 +55,7 @@ class NubankClient:
                 _pagamento.status = 3
                 _pagamento.data_pagamento = data_pagamento
                 _pagamento.save()
-            if not data['pageInfo']['hasNextPage']:
+            if not data['pageInfo']['hasNextPage'] or last_transaction_id is None:
                 return config.save()
             data = self.nubank.get_account_feed_paginated(cursor=page_data[0]['cursor'])
             page_data = data['edges']
