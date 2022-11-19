@@ -13,6 +13,7 @@ from django.views.generic import TemplateView
 from .tasks import show_hello_world
 from .models import DemoModel
 import requests
+import json
 # Create your views here.
 
 
@@ -108,18 +109,15 @@ class AlunoPagamentoView(APIView):
         # SHOW
         pagamento = self.get_object(pk)
 
-        # nu = NubankClient()
-        # pagamento.link = nu.create_pix_payment(f'{pagamento.id} - {_pessoa.nome} - {"Novembro"}')
-        # pagamento.save()
         response = requests.post(
-            'https://www.gerarpix.com.br/emvqr-static',
-            json={
-                "key_type": "CPF",
-                "key": "082.822.014-05",
-                "name": "Eduardo dos Anjos Rodrigu",
-                "city": "SAO PAULO",
-                "amount": "R$ 115,00",
-                "reference": "1EduardoOutubro"
+            'https://pix.ae',
+            params={
+                "tipo": "cpf",
+                "chave": "082.822.014-05",
+                "nome": "Eduardo dos Anjos Rodrigu",
+                "valor": "115.00",
+                "info": "Eduardo - Outubro",
+                "txid": pagamento.id
             }, 
             headers = {
                 "accept": "application/json",
@@ -127,13 +125,12 @@ class AlunoPagamentoView(APIView):
             },
             timeout=5000
         )
-        # pagamento.link = response['code']
-        # pagamento.save()
+        pagamento.link = json.loads(response.text)['qrstring']
+        pagamento.save()
 
 
         return Response(
-            # data={'data': AlunoPagamentoSerializer(pagamento).data, 'repsonse': response},
-            data=response,
+            data=AlunoPagamentoSerializer(pagamento).data,
             status=status.HTTP_200_OK
         )
 
