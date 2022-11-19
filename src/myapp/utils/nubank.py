@@ -20,7 +20,7 @@ class NubankClient:
             self.account_id, value, self.pix_key, identifier)
         return money_request['payment_code']
 
-    def update_all_status(self, pix_identifier_prefix):
+    def process_all_transactions(self, pix_identifier_prefix):
         page_data = self.nubank.get_account_feed_paginated()['edges']
 
         # Get last processed transaction:

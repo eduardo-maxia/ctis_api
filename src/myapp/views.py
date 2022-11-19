@@ -95,6 +95,7 @@ class AlunoPagamentoView(APIView):
 
     def get(self, request, pk=None):
         _pessoa = Pessoa.objects.get(user_id=request.user.id)
+        current_date = datetime.now(timezone.utc)
 
         # INDEX
         if pk is None:
@@ -103,11 +104,21 @@ class AlunoPagamentoView(APIView):
 
             # Active User
             if len(all_payments) > 0:
-                # Check if this month's payment has been issued
+                # Get last issued payment
                 last_payment = 0
                 for payment in all_payments:
                     last_payment = max(last_payment, payment.mes_referencia)
-                for month in range(last_payment + 1, datetime.now(timezone.utc).month + 1):
+                    # Update payment status based on date
+                    if payment.status == 1:
+                        if payment.mes_referencia > current_date.month:
+                            continue
+                        if _pessoa.data_vencimento > current_date.day:
+                            continue
+                        payment.status = 2
+                        payment.save()
+
+                # Check if this month's payment has been issued
+                for month in range(last_payment + 1, current_date.month + 1):
                     novo_pagamento = AlunoPagameto(
                         pessoa_aluno_id=_pessoa.id,
                         mes_referencia=month,
@@ -117,7 +128,7 @@ class AlunoPagamentoView(APIView):
 
                 # Update status for all payments
                 nu = NubankClient()
-                nu.update_all_status(self.pix_identifier_prefix)
+                nu.process_all_transactions(self.pix_identifier_prefix)
 
             # First time user
             else:
