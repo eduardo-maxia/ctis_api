@@ -33,7 +33,8 @@ class NubankClient:
         tx_id = page_data[0]['node']['id']
         config.last_transaction = tx_id
 
-        if last_transaction_id is None:
+        print(last_transaction_id)
+        if last_transaction_id == '':
             return config.save
 
         # Process all transactions until the very last one uprocessed:
