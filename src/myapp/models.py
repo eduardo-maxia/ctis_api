@@ -46,6 +46,7 @@ class AlunoPagameto(models.Model):
     valor = models.FloatField()
     link = models.CharField(max_length=200)
     status = models.IntegerField(choices=Status.choices, default=Status.PAGAMENTO_GERADO)
+    data_pagamento = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

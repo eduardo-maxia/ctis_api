@@ -41,12 +41,15 @@ class NubankClient:
                 if transaction['node'].get('footer') != 'Pix' or self.nubank.get_pix_details(tx_id) is None:
                     continue
 
-                aluno_pagamento_id = self.nubank.get_pix_details(tx_id)['id']
+                pix_details = self.nubank.get_pix_details(tx_id)
+                aluno_pagamento_id = pix_details['id']
+                data_pagamento = pix_details['date']
                 if aluno_pagamento_id is None or not aluno_pagamento_id.startswith(pix_identifier_prefix):
                     continue
 
                 _pagamento = AlunoPagameto.objects.get(pk=aluno_pagamento_id.replace(pix_identifier_prefix, ''))
                 _pagamento.status = 3
+                _pagamento.data_pagamento = data_pagamento
                 _pagamento.save()
             page_data = self.nubank.get_account_feed_paginated(cursor=page_data[0]['cursor'])['edges']
             break
