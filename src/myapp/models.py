@@ -16,11 +16,13 @@ class Pessoa(models.Model):
     class TipoPessoa(models.IntegerChoices):
         GESTOR = 1
         PROFESSOR = 2
-        ALUNO = 3
+        ALUNO_ADULTO = 3
+        ALUNO_INFANTIL = 4
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tipo_pessoa = models.IntegerField(choices=TipoPessoa.choices)
     nome = models.CharField(max_length = 30)
+    nome_responsavel = models.CharField(max_length = 30)
     telefone = models.CharField(max_length = 20)
     data_vencimento = models.IntegerField()
     status = models.IntegerField()

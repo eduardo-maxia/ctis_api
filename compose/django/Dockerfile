@@ -1,6 +1,6 @@
 # More Datascience frendly gist can be found here: https://gist.github.com/ruddra/870d7a51238ddfa4b50375086c12a4f5
 # pull official python alpine image
-FROM python:3.7-alpine
+FROM python:3.9-alpine
 
 # Set Environment Variable
 ENV PYTHONUNBUFFERED 1
@@ -17,8 +17,8 @@ WORKDIR /src
 RUN apk update && apk add --no-cache \
     postgresql \
     zlib \
-    jpeg \
-    && apk add libffi-dev
+    jpeg
+    # && apk add libffi-dev
 # un-comment the following two dependecies if you want to add library like pandas, scipy and numpy
 # openblas \ 
 # libstdc++ 
