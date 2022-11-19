@@ -40,8 +40,8 @@ urlpatterns = [
     path('pessoas/', PessoaView.as_view()),
     path('pessoas/<int:pk>/', PessoaView.as_view()),
 
-    path('aluno_pagamentos/', TurmaAlunoPagamentoView.as_view()),
-    path('aluno_pagamentos/<int:pk>/', TurmaAlunoPagamentoView.as_view()),
+    path('turma_aluno_pagamentos/', TurmaAlunoPagamentoView.as_view()),
+    path('turma_aluno_pagamentos/<int:pk>/', TurmaAlunoPagamentoView.as_view()),
 
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

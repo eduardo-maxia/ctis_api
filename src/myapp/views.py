@@ -4,7 +4,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Pessoa, TurmaAlunoPagamento
+from .models import Pessoa, TurmaAlunoPagamento, TurmaAluno
 from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, TurmaAlunoPagamentoSerializer
 from rest_framework import viewsets
 from django import get_version
@@ -99,20 +99,19 @@ class TurmaAlunoPagamentoView(APIView):
 
         # INDEX
         if pk is None:
-            all_payments = TurmaAlunoPagamento.objects.filter(
-                pessoa_aluno_id=_pessoa.id).all()
+            all_payments = TurmaAlunoPagamento.objects.select_related('turma_aluno').filter(turma_aluno__pessoa_aluno_id = _pessoa.id).all()
 
             # Active User
             if len(all_payments) > 0:
                 # Get last issued payment
                 last_payment = 0
                 for payment in all_payments:
-                    last_payment = max(last_payment, payment.mes_referencia)
+                    last_payment = max(last_payment, payment.mes_referencia.id)
                     # Update payment status based on date
                     if payment.status == 1:
-                        if payment.mes_referencia > current_date.month:
+                        if payment.mes_referencia.id > current_date.month:
                             continue
-                        if _pessoa.data_vencimento > current_date.day:
+                        if _pessoa.data_vencimento and _pessoa.data_vencimento > current_date.day:
                             continue
                         payment.status = 2
                         payment.save()
@@ -134,8 +133,7 @@ class TurmaAlunoPagamentoView(APIView):
             else:
                 print('first timer')
 
-            all_payments = TurmaAlunoPagamento.objects.filter(
-                pessoa_aluno_id=_pessoa.id).all()
+            all_payments = TurmaAlunoPagamento.objects.select_related('turma_aluno').filter(turma_aluno__pessoa_aluno_id = _pessoa.id).all()
 
             return Response(
                 data=[
