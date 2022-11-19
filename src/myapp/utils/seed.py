@@ -48,7 +48,7 @@ def seed_db():
 
 
 def create_pessoa(telefone, tipo, nome):
-    _user = User(username = telefone, password = '123456')
+    _user =  User.objects.create_user(username = telefone, password = '123456')
     _user.save()
     _pessoa = Pessoa(
         user_id = _user.id,

@@ -3,10 +3,10 @@ from rest_framework import serializers
 from .models import TurmaAlunoPagamento, Pessoa
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
+        fields = '__all__'
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
