@@ -127,12 +127,13 @@ class AlunoPagamentoView(APIView):
             },
             timeout=5000
         )
-        pagamento.link = response['code ']
-        pagamento.save()
-        print(response)
+        # pagamento.link = response['code']
+        # pagamento.save()
+
 
         return Response(
-            data=AlunoPagamentoSerializer(pagamento).data,
+            # data={'data': AlunoPagamentoSerializer(pagamento).data, 'repsonse': response},
+            data=response,
             status=status.HTTP_200_OK
         )
 
