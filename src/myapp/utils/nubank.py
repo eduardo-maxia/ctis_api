@@ -33,6 +33,9 @@ class NubankClient:
         tx_id = page_data[0]['node']['id']
         config.last_transaction = tx_id
 
+        if last_transaction_id is None:
+            return config.save
+
         # Process all transactions until the very last one uprocessed:
         while True:
             for transaction in page_data:
@@ -55,8 +58,8 @@ class NubankClient:
                 _pagamento.status = 3
                 _pagamento.data_pagamento = data_pagamento
                 _pagamento.save()
-            print(last_transaction_id)
-            if last_transaction_id is None or not data['pageInfo']['hasNextPage']:
+
+            if not data['pageInfo']['hasNextPage']:
                 return config.save()
             data = self.nubank.get_account_feed_paginated(cursor=page_data[0]['cursor'])
             page_data = data['edges']
