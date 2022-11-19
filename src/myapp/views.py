@@ -4,8 +4,8 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Pessoa, AlunoPagameto
-from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, AlunoPagamentoSerializer
+from .models import Pessoa, TurmaAlunoPagamento
+from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, TurmaAlunoPagamentoSerializer
 from rest_framework import viewsets
 from django import get_version
 from django.views.generic import TemplateView
@@ -84,13 +84,13 @@ class PessoaView(APIView):
         )
 
 
-class AlunoPagamentoView(APIView):
+class TurmaAlunoPagamentoView(APIView):
     pix_identifier_prefix = 'ctispagamento'
 
     def get_object(self, pk):
         try:
-            return AlunoPagameto.objects.get(pk=pk)
-        except AlunoPagameto.DoesNotExist:
+            return TurmaAlunoPagamento.objects.get(pk=pk)
+        except TurmaAlunoPagamento.DoesNotExist:
             raise Http404
 
     def get(self, request, pk=None):
@@ -99,7 +99,7 @@ class AlunoPagamentoView(APIView):
 
         # INDEX
         if pk is None:
-            all_payments = AlunoPagameto.objects.filter(
+            all_payments = TurmaAlunoPagamento.objects.filter(
                 pessoa_aluno_id=_pessoa.id).all()
 
             # Active User
@@ -118,13 +118,13 @@ class AlunoPagamentoView(APIView):
                         payment.save()
 
                 # Check if this month's payment has been issued
-                for month in range(last_payment + 1, current_date.month + 1):
-                    novo_pagamento = AlunoPagameto(
-                        pessoa_aluno_id=_pessoa.id,
-                        mes_referencia=month,
-                        valor=5
-                    )
-                    novo_pagamento.save()
+                # for month in range(last_payment + 1, current_date.month + 1):
+                #     novo_pagamento = TurmaAlunoPagamento(
+                #         pessoa_aluno_id=_pessoa.id,
+                #         mes_referencia=month,
+                #         valor=5
+                #     )
+                #     novo_pagamento.save()
 
                 # Update status for all payments
                 nu = NubankClient()
@@ -134,12 +134,12 @@ class AlunoPagamentoView(APIView):
             else:
                 print('first timer')
 
-            all_payments = AlunoPagameto.objects.filter(
+            all_payments = TurmaAlunoPagamento.objects.filter(
                 pessoa_aluno_id=_pessoa.id).all()
 
             return Response(
                 data=[
-                    AlunoPagamentoSerializer(payment).data
+                    TurmaAlunoPagamentoSerializer(payment).data
                     for payment in all_payments],
                 status=status.HTTP_200_OK
             )
@@ -167,7 +167,7 @@ class AlunoPagamentoView(APIView):
         pagamento.save()
 
         return Response(
-            data=AlunoPagamentoSerializer(pagamento).data,
+            data=TurmaAlunoPagamentoSerializer(pagamento).data,
             status=status.HTTP_200_OK
         )
 
@@ -175,7 +175,7 @@ class AlunoPagamentoView(APIView):
         _pessoa = Pessoa.objects.get(user_id=request.user.id)
 
         for mes in range(1, 12):
-            novo_pagamento = AlunoPagameto(
+            novo_pagamento = TurmaAlunoPagamento(
                 pessoa_aluno_id=_pessoa.id,
                 mes_referencia=mes,
                 valor=115
@@ -183,6 +183,6 @@ class AlunoPagamentoView(APIView):
             novo_pagamento.save()
 
         return Response(
-            data=AlunoPagamentoSerializer(novo_pagamento).data,
+            data=TurmaAlunoPagamentoSerializer(novo_pagamento).data,
             status=status.HTTP_200_OK
         )

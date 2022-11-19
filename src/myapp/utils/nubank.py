@@ -1,6 +1,6 @@
 from pynubank import Nubank
 import json
-from ..models import AlunoPagameto, Configuracoes
+from ..models import TurmaAlunoPagamento, Configuracoes
 from datetime import datetime, timezone
 
 class NubankClient:
@@ -51,7 +51,7 @@ class NubankClient:
                 if aluno_pagamento_id is None or not aluno_pagamento_id.startswith(pix_identifier_prefix):
                     continue
 
-                _pagamento = AlunoPagameto.objects.get(pk=aluno_pagamento_id.replace(pix_identifier_prefix, ''))
+                _pagamento = TurmaAlunoPagamento.objects.get(pk=aluno_pagamento_id.replace(pix_identifier_prefix, ''))
                 _pagamento.status = 3
                 _pagamento.data_pagamento = data_pagamento
                 _pagamento.save()
