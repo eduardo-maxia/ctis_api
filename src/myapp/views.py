@@ -1,7 +1,18 @@
+from django.contrib.auth.models import User, Group
+from .utils.nubank import NubankClient
+from django.http import Http404
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Pessoa, AlunoPagameto
+from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, AlunoPagamentoSerializer
+from rest_framework import permissions
+from rest_framework import viewsets
 from django import get_version
 from django.views.generic import TemplateView
 from .tasks import show_hello_world
 from .models import DemoModel
+import requests
 # Create your views here.
 
 
@@ -18,16 +29,6 @@ class ShowHelloWorld(TemplateView):
         context['version'] = get_version()
         return context
 
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, AlunoPagamentoSerializer
-from .models import Pessoa, AlunoPagameto
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-
-from .utils.nubank import NubankClient
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -35,7 +36,6 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -44,53 +44,107 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class PessoaView(APIView):
-    def get(self, request):
+    def get_object(self, pk):
+        try:
+            return Pessoa.objects.get(pk=pk)
+        except Pessoa.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        _pessoa = self.get_object(pk)
         return Response(
-            data=PessoaSerializer(
-                Pessoa.objects.get(user_id=1)).data,
+            data=PessoaSerializer(_pessoa).data,
             status=status.HTTP_200_OK
         )
-        #request.user.id
 
     def post(self, request):
-        p = Pessoa(user_id=1, cpf='08282201405', data_vencimento=5,
-                   nome='Eduardo', status=1, telefone='(21)93618-1803', tipo_pessoa=1)
-        p.save()
+        # 1 - Parse input:
+        _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
+        # 2 - Create the User:
+        _user = User(username=_dict_inputs['telefone'], password='12345678')
+        _user.save()
+
+        _pessoa = Pessoa(user_id=_user.id, **_dict_inputs)
+        _pessoa.save()
         return Response(
-            data=PessoaSerializer(p).data,
+            data=PessoaSerializer(_pessoa).data,
             status=status.HTTP_200_OK
+        )
+
+    def delete(self, request, pk):
+        _pessoa = self.get_object(pk)
+        _pessoa.delete()
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
         )
 
 
 class AlunoPagamentoView(APIView):
-    def get(self, request):
+    def get_object(self, pk):
+        try:
+            return AlunoPagameto.objects.get(pk=pk)
+        except AlunoPagameto.DoesNotExist:
+            raise Http404
 
-        all_payments = AlunoPagameto.objects.filter(pessoa_aluno_id=1).all()
-        
+    def get(self, request, pk=None):
+        _pessoa = Pessoa.objects.get(user_id=request.user.id)
+
+        # INDEX
+        if pk is None:
+            all_payments = AlunoPagameto.objects.filter(
+                pessoa_aluno_id=_pessoa.id).all()
+
+            return Response(
+                data=[
+                    AlunoPagamentoSerializer(payment).data
+                    for payment in all_payments],
+                status=status.HTTP_200_OK
+            )
+
+        # SHOW
+        pagamento = self.get_object(pk)
+
+        # nu = NubankClient()
+        # pagamento.link = nu.create_pix_payment(f'{pagamento.id} - {_pessoa.nome} - {"Novembro"}')
+        # pagamento.save()
+        response = requests.post(
+            'https://www.gerarpix.com.br/emvqr-static',
+            json={
+                "key_type": "CPF",
+                "key": "082.822.014-05",
+                "name": "Eduardo dos Anjos Rodrigu",
+                "city": "SAO PAULO",
+                "amount": "R$ 115,00",
+                "reference": "1EduardoOutubro"
+            }, 
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            timeout=5000
+        )
+        pagamento.link = response['code ']
+        pagamento.save()
+        print(response)
+
         return Response(
-            data=[
-                AlunoPagamentoSerializer(payment).data
-            for payment in all_payments],
+            data=AlunoPagamentoSerializer(pagamento).data,
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-        pessoa = Pessoa.objects.get(id = 1)
+        _pessoa = Pessoa.objects.get(user_id=request.user.id)
 
-        nu = NubankClient()
-
-        for mes in range(1,12):
+        for mes in range(1, 12):
             novo_pagamento = AlunoPagameto(
-                pessoa_aluno_id = pessoa.id,
-                mes_referencia = mes,
-                valor = 115
+                pessoa_aluno_id=_pessoa.id,
+                mes_referencia=mes,
+                valor=115
             )
-            novo_pagamento.save()
-            novo_pagamento.link = nu.create_pix_payment(novo_pagamento.id)
             novo_pagamento.save()
 
         return Response(

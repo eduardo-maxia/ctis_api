@@ -1,8 +1,5 @@
 from pynubank import Nubank
 import json
-from os import listdir
-
-print(listdir())
 
 class NubankClient:
     def __init__(self) -> None:

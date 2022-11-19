@@ -21,7 +21,6 @@ class Pessoa(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tipo_pessoa = models.IntegerField(choices=TipoPessoa.choices)
     nome = models.CharField(max_length = 30)
-    cpf = models.CharField(max_length = 15)
     telefone = models.CharField(max_length = 20)
     data_vencimento = models.IntegerField()
     status = models.IntegerField()

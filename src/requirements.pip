@@ -13,3 +13,5 @@ vine==5.0.0
 importlib-metadata==4.13.0
 djangorestframework
 pynubank
+djangorestframework-simplejwt
+django-filter

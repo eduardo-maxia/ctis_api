@@ -17,17 +17,17 @@ services:
       - web
     networks:
       - djangonetwork
-  nginx_db:
-    image: nginx:alpine
-    container_name: nginx_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./config/nginx_db:/etc/nginx/conf.d
-    depends_on:
-      - db
-    networks:
-      - djangonetwork
+  # nginx_db:
+  #   image: nginx:alpine
+  #   container_name: nginx_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - ./config/nginx_db:/etc/nginx/conf.d
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - djangonetwork
   web:
     build:
       context: .
@@ -55,8 +55,8 @@ services:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
-    expose:
-      - 5432
+    ports:
+      - "5432:5432"
     networks:
       - djangonetwork
   redis:
