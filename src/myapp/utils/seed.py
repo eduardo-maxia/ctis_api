@@ -64,7 +64,7 @@ def create_turma_aluno(aluno, turma):
     return _ta
 
 def create_pagamentos(turma_aluno):
-    for mes in range(6, 12):
+    for mes in range(6, 14):
         _tap = TurmaAlunoPagamento(
             turma_aluno_id = turma_aluno.id,
             mes_referencia_id = mes,

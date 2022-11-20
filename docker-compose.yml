@@ -1,9 +1,5 @@
 version: "3"
 
-volumes:
-  local_postgres_data2: {}
-  local_postgres_data_backups: {}
-
 services:
   nginx:
     image: nginx:alpine
@@ -53,8 +49,8 @@ services:
     env_file:
       - ./.envs/.postgres
     volumes:
-      - local_postgres_data2:/var/lib/postgresql/data
-      - local_postgres_data_backups:/backups
+      - ./tmp/local_postgres_data:/var/lib/postgresql/data
+      - ./tmp/local_postgres_data_backups:/backups
     ports:
       - "5432:5432"
     networks:
