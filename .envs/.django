@@ -3,3 +3,4 @@ DB_PORT=5432
 DB_PASSWORD=10pontos
 DB_USER=eduardo
 DB_NAME=ctis_database
+env=local

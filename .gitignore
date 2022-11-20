@@ -14,3 +14,4 @@ src/mydjango/__pycache__/settings.cpython-35.pyc
 src/mydjango/local_settings.py
 src/media
 /tmp
+/.envs
