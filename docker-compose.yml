@@ -49,7 +49,7 @@ services:
     env_file:
       - ./.envs/.postgres
     volumes:
-      - ./tmp/local_postgres_data:/var/lib/postgresql/data
+      - ./tmp/local_postgres_data:/var/lib/postgresql/data2
       - ./tmp/local_postgres_data_backups:/backups
     ports:
       - "5432:5432"
