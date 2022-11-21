@@ -83,7 +83,7 @@ class TurmaAluno(models.Model):
 
 class Mes(models.Model):
     def mes_serialized(self):
-        return self.Meses.names[self.mes]
+        return self.Meses.names[self.mes - 1]
 
     class Meses(models.IntegerChoices):
         Janeiro = 1
@@ -111,10 +111,14 @@ class Mes(models.Model):
 
 
 class TurmaAlunoPagamento(models.Model):
+    def status_serialized(self):
+         return self.Status.names[self.status - 1]
+
     class Status(models.IntegerChoices):
-        PAGAMENTO_GERADO = 1
-        PAGAMETO_PENDENTE = 2
-        PAGAMENTO_EFETUADO = 3
+        Agendado = 1
+        Proximo = 2
+        Pendente = 3
+        Aprovado = 4
 
     turma_aluno = models.ForeignKey(TurmaAluno, on_delete=models.CASCADE)
 
@@ -122,7 +126,7 @@ class TurmaAlunoPagamento(models.Model):
     valor = models.FloatField()
     link = models.CharField(max_length=200, default='')
     status = models.IntegerField(
-        choices=Status.choices, default=Status.PAGAMENTO_GERADO)
+        choices=Status.choices, default=Status.Agendado)
     data_pagamento = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

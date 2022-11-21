@@ -142,8 +142,12 @@ class TurmaAlunoPagamentoView(APIView):
 
             return Response(
                 data=[
-                    TurmaAlunoPagamentoSerializer(payment).data
-                    for payment in all_payments],
+                    {
+                        **TurmaAlunoPagamentoSerializer(pagamento).data,
+                        'mes': pagamento.mes_referencia.mes_serialized(),
+                        'status': pagamento.status_serialized()
+                    }
+                    for pagamento in all_payments],
                 status=status.HTTP_200_OK
             )
 
@@ -170,7 +174,11 @@ class TurmaAlunoPagamentoView(APIView):
         pagamento.save()
 
         return Response(
-            data=TurmaAlunoPagamentoSerializer(pagamento).data,
+            data={
+                **TurmaAlunoPagamentoSerializer(pagamento).data,
+                'mes': pagamento.mes_referencia.mes_serialized(),
+                'status': pagamento.status_serialized()
+            },
             status=status.HTTP_200_OK
         )
 
