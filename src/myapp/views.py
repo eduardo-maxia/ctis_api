@@ -239,6 +239,8 @@ class NotificacaoView(APIView):
                     'badge': 1
                 }
             for _pagamento_pendente in _pagamentos_pendentes]
+            print('nots: ', _notificacoes)
+            print('pags', _pagamentos_pendentes)
 
             send_notification(_notificacoes)
 
