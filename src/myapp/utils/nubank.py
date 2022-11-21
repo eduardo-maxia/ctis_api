@@ -55,7 +55,7 @@ class NubankClient:
                     continue
 
                 _pagamento = TurmaAlunoPagamento.objects.get(pk=aluno_pagamento_id.replace(pix_identifier_prefix, ''))
-                _pagamento.status = 3
+                _pagamento.status = 4
                 _pagamento.data_pagamento = data_pagamento
                 _pagamento.save()
 

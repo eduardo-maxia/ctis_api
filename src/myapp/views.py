@@ -117,8 +117,9 @@ class TurmaAlunoPagamentoView(APIView):
                         if payment.mes_referencia.id > current_date.month:
                             continue
                         if _pessoa.data_vencimento and _pessoa.data_vencimento > current_date.day:
+                            payment.status = 2
                             continue
-                        payment.status = 2
+                        payment.status = 3
                         payment.save()
 
                 # Check if this month's payment has been issued
