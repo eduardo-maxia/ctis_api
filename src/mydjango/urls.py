@@ -21,7 +21,7 @@ from django.conf import settings
 from django.urls import include, path
 from rest_framework import routers
 
-from myapp.views import ShowHelloWorld, UserViewSet, GroupViewSet, TurmaAlunoPagamentoView, PessoaView
+from myapp.views import ShowHelloWorld, UserViewSet, GroupViewSet, TurmaAlunoPagamentoView, PessoaView, NotificacaoView
 from rest_framework.authtoken import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -43,6 +43,7 @@ urlpatterns = [
     path('turma_aluno_pagamentos/', TurmaAlunoPagamentoView.as_view()),
     path('turma_aluno_pagamentos/<int:pk>/', TurmaAlunoPagamentoView.as_view()),
 
+    path('notificacoes/', NotificacaoView.as_view()),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

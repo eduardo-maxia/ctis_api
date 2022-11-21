@@ -15,3 +15,4 @@ djangorestframework
 pynubank
 djangorestframework-simplejwt
 django-filter
+exponent_server_sdk

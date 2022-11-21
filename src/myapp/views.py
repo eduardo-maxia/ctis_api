@@ -4,7 +4,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Pessoa, TurmaAlunoPagamento, TurmaAluno
+from .models import Pessoa, TurmaAlunoPagamento, TurmaAluno, Mes, Configuracoes
 from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, TurmaAlunoPagamentoSerializer
 from rest_framework import viewsets
 from django import get_version
@@ -14,6 +14,7 @@ from .models import DemoModel
 import requests
 import json
 from datetime import datetime, timezone
+from .utils.expo_notifications import send_notification
 # Create your views here.
 
 
@@ -78,10 +79,10 @@ class PessoaView(APIView):
 
     def patch(self, request, pk=None):
         _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
-        if request.data['expoPushToken']:
+        if request.data.get('expoPushToken'):
             _pessoa.expoPushToken = request.data['expoPushToken']
             _pessoa.save()
-        if request.data['password']:
+        if request.data.get('password'):
             _user = User.objects.get(pk=request.user.id)
             if not _user.check_password(request.data['password_old']):
                 return Response(
@@ -89,6 +90,9 @@ class PessoaView(APIView):
                 )
             _user.set_password(request.data['password'])
             _user.save()
+        if request.data.get('data_vencimento'):
+            _pessoa.data_vencimento = request.data['data_vencimento']
+            _pessoa.save()
         return Response(
             status=status.HTTP_200_OK
         )
@@ -211,3 +215,38 @@ class TurmaAlunoPagamentoView(APIView):
     #         data=TurmaAlunoPagamentoSerializer(novo_pagamento).data,
     #         status=status.HTTP_200_OK
     #     )
+
+class NotificacaoView(APIView):
+    def post(self, request):
+        # _pessoa = Pessoa.objects.get(user_id=request.user.id)
+        current_date = datetime.now(timezone.utc)
+
+        # Mandar notficação de dia de pagamento
+        if request.data.get('data_vencimento'):
+            _mes_referencia = Mes.objects.get(mes = current_date.month, ano_letivo = current_date.year)
+            # _pagamentos_pendentes = TurmaAlunoPagamento.objects.filter(status__in = [1,2], mes_referencia = _mes_referencia)
+            _pagamentos_pendentes = TurmaAlunoPagamento.objects.select_related('turma_aluno__pessoa_aluno').filter(
+                status__in = [1,2], mes_referencia = _mes_referencia,
+                turma_aluno__pessoa_aluno__data_vencimento = 5).all()
+            
+            _notificacoes = [
+                {
+                    'to': _pagamento_pendente.turma_aluno.pessoa_aluno.expoPushToken, 
+                    'title': 'CUIDAAAAAA',
+                    'body': 'Bora pagar',
+                    'subtitle': 'Tá no teu dia de vencimento',
+                    'data': {'pagamento_id': _pagamento_pendente.id},
+                    'badge': 1
+                }
+            for _pagamento_pendente in _pagamentos_pendentes]
+
+            send_notification(_notificacoes)
+
+        return Response(
+            data={
+                # **TurmaAlunoPagamentoSerializer(pagamento).data,
+                # 'mes': pagamento.mes_referencia.mes_serialized(),
+                # 'status': pagamento.status_serialized()
+            },
+            status=status.HTTP_200_OK
+        )
