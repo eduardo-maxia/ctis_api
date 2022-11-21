@@ -82,8 +82,25 @@ class TurmaAluno(models.Model):
 
 
 class Mes(models.Model):
+    def mes_serialized(self):
+        return self.Meses.names[self.mes]
+
+    class Meses(models.IntegerChoices):
+        Janeiro = 1
+        Fevereiro = 2
+        Marco = 3
+        Abril = 4
+        Maio = 5
+        Junho = 6
+        Julho = 7
+        Agosto = 8
+        Setembro = 9
+        Outubro = 10
+        Novembro = 11
+        Dezembro = 12
+    
     ano_letivo = models.IntegerField()
-    mes = models.IntegerField()
+    mes = models.IntegerField(choices=Meses.choices)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

@@ -54,14 +54,15 @@ class PessoaView(APIView):
         except Pessoa.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk):
-        _pessoa = self.get_object(pk)
+    def get(self, request, pk=None):
+        _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
         return Response(
             data=PessoaSerializer(_pessoa).data,
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
+        print("POST")
         # 1 - Parse input:
         _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
         # 2 - Create the User:
@@ -74,6 +75,10 @@ class PessoaView(APIView):
             data=PessoaSerializer(_pessoa).data,
             status=status.HTTP_200_OK
         )
+
+    def patch(self, request, pk):
+        print("PATCH REQUEST")
+        return
 
     def delete(self, request, pk):
         _pessoa = self.get_object(pk)
@@ -152,7 +157,7 @@ class TurmaAlunoPagamentoView(APIView):
                 "chave": "082.822.014-05",
                 "nome": "Eduardo dos Anjos Rodrigu",
                 "valor": "10.00",
-                "info": f"{_pessoa.nome} - {pagamento.mes_referencia}",
+                "info": f"{_pessoa.nome} - {pagamento.mes_referencia.mes_serialized()}",
                 "txid": f"{self.pix_identifier_prefix}{pagamento.id}"
             },
             headers={
@@ -169,18 +174,18 @@ class TurmaAlunoPagamentoView(APIView):
             status=status.HTTP_200_OK
         )
 
-    def post(self, request):
-        _pessoa = Pessoa.objects.get(user_id=request.user.id)
+    # def post(self, request):
+    #     _pessoa = Pessoa.objects.get(user_id=request.user.id)
 
-        for mes in range(1, 12):
-            novo_pagamento = TurmaAlunoPagamento(
-                pessoa_aluno_id=_pessoa.id,
-                mes_referencia=mes,
-                valor=115
-            )
-            novo_pagamento.save()
+    #     for mes in range(1, 12):
+    #         novo_pagamento = TurmaAlunoPagamento(
+    #             pessoa_aluno_id=_pessoa.id,
+    #             mes_referencia=mes,
+    #             valor=115
+    #         )
+    #         novo_pagamento.save()
 
-        return Response(
-            data=TurmaAlunoPagamentoSerializer(novo_pagamento).data,
-            status=status.HTTP_200_OK
-        )
+    #     return Response(
+    #         data=TurmaAlunoPagamentoSerializer(novo_pagamento).data,
+    #         status=status.HTTP_200_OK
+    #     )
