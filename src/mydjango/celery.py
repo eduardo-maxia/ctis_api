@@ -4,7 +4,7 @@ from celery import Celery
 import logging
 logger = logging.getLogger("Celery")
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mydjango.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mydjango.settings_prod')
 
 app = Celery('mydjango')
 

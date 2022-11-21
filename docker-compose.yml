@@ -35,8 +35,8 @@ services:
       - ./src:/src
     expose:
       - "8000"
-    links:
-      - redis
+    # links:
+    #   - redis
     env_file:
       - ./.envs/.django
     networks:
@@ -55,13 +55,13 @@ services:
       - "5432:5432"
     networks:
       - djangonetwork
-  redis:
-    image: redis:alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - djangonetwork
+  # redis:
+  #   image: redis:alpine
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - djangonetwork
 
 networks:
   djangonetwork:
