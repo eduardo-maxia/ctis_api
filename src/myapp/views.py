@@ -78,8 +78,17 @@ class PessoaView(APIView):
 
     def patch(self, request, pk=None):
         _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
-        _pessoa.expoPushToken = request.data['expoPushToken']
-        _pessoa.save()
+        if request.data['expoPushToken']:
+            _pessoa.expoPushToken = request.data['expoPushToken']
+            _pessoa.save()
+        if request.data['password']:
+            _user = User.objects.get(pk=request.user.id)
+            if not _user.check_password(request.data['password_old']):
+                return Response(
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            _user.set_password(request.data['password'])
+            _user.save()
         return Response(
             status=status.HTTP_200_OK
         )
