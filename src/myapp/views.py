@@ -76,9 +76,13 @@ class PessoaView(APIView):
             status=status.HTTP_200_OK
         )
 
-    def patch(self, request, pk):
-        print("PATCH REQUEST")
-        return
+    def patch(self, request, pk=None):
+        _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
+        _pessoa.expoPushToken = request.data['expoPushToken']
+        _pessoa.save()
+        return Response(
+            status=status.HTTP_200_OK
+        )
 
     def delete(self, request, pk):
         _pessoa = self.get_object(pk)

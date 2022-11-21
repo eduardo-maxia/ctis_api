@@ -31,6 +31,8 @@ class Pessoa(models.Model):
     nome_responsavel = models.CharField(max_length=30, blank=True)
     data_vencimento = models.IntegerField(choices=Status.choices, null=True)
     status = models.IntegerField(choices=Status.choices, default=Status.ATIVO)
+    expoPushToken = models.CharField(max_length=50, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
