@@ -113,7 +113,7 @@ class TurmaAlunoPagamentoView(APIView):
                 for payment in all_payments:
                     last_payment = max(last_payment, payment.mes_referencia.id)
                     # Update payment status based on date
-                    if payment.status == 1:
+                    if payment.status in [1,2]:
                         if payment.mes_referencia.id > current_date.month:
                             continue
                         if _pessoa.data_vencimento and _pessoa.data_vencimento > current_date.day:
