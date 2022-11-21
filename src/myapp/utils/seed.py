@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # from myapp.utils.seed import seed_db
 
-def seed_db():
+def __main__():
     # Pessoas
     arlen = create_pessoa('85997915952', 1, 'Arlen')
     iury = create_pessoa('85985092711', 1, 'Iury')
