@@ -143,6 +143,32 @@ class TurmaView(APIView):
             status=status.HTTP_200_OK
         )
 
+    def post(self, request):
+        _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
+
+        _turma = Turma(**_dict_inputs)
+        _turma.save()
+        return Response(
+            data=TurmaSerializer(_turma).data,
+            status=status.HTTP_200_OK
+        )
+
+class TurmaAlunoView(APIView):
+    def get_object(self, pk):
+        try:
+            return Turma.objects.get(pk=pk)
+        except Pessoa.DoesNotExist:
+            raise Http404
+
+    def post(self, request):
+        _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
+
+        _turma = TurmaAluno(**_dict_inputs)
+        _turma.save()
+        return Response(
+            data=TurmaAlunoSerializer(_turma).data,
+            status=status.HTTP_200_OK
+        )
 
 class TurmaAlunoPagamentoView(APIView):
     pix_identifier_prefix = 'ctispagamento'
