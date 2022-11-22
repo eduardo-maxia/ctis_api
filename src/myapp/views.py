@@ -224,10 +224,8 @@ class NotificacaoView(APIView):
         # Mandar notficação de dia de pagamento
         if request.data.get('data_vencimento'):
             _mes_referencia = Mes.objects.get(mes = current_date.month, ano_letivo = current_date.year)
-            print(_mes_referencia)
             _pagamentos_pendentes = TurmaAlunoPagamento.objects.select_related('turma_aluno__pessoa_aluno').filter(
-                status__in = [1,2], mes_referencia = _mes_referencia,
-                turma_aluno__pessoa_aluno__data_vencimento = 5).all()
+                status__in = [1,2], mes_referencia = _mes_referencia).all()
             
             _notificacoes = [
                 {
