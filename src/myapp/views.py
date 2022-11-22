@@ -60,7 +60,16 @@ class PessoaView(APIView):
         _user = User.objects.get(pk = request.user.id)
         _is_password_initial = _user.check_password('123456')
         return Response(
-            data=PessoaSerializer(_pessoa).data | {'is_password_initial': _is_password_initial},
+            data=PessoaSerializer(_pessoa).data | {
+                'is_password_initial': _is_password_initial,
+                'turmas': [
+                    TurmaSerializer(turma_aluno.turma).data | {
+                        'tipo_dias': turma_aluno.turma.tipo_dias_serialized(),
+                        'professor': turma_aluno.turma.pessoa_professor.nome,
+                        'sede': turma_aluno.turma.sede.nome,
+                    }
+                for turma_aluno in TurmaAluno.objects.select_related('turma').filter(pessoa_aluno = _pessoa).all()]
+            },
             status=status.HTTP_200_OK
         )
 
