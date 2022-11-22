@@ -225,7 +225,8 @@ class NotificacaoView(APIView):
         if request.data.get('data_vencimento'):
             _mes_referencia = Mes.objects.get(mes = current_date.month, ano_letivo = current_date.year)
             _pagamentos_pendentes = TurmaAlunoPagamento.objects.select_related('turma_aluno__pessoa_aluno').filter(
-                status__in = [1,2]).all()
+                mes_referencia = _mes_referencia,
+                turma_aluno__pessoa_aluno__data_vencimento = request.data.get('data_vencimento')).all()
             
             _notificacoes = [
                 {
