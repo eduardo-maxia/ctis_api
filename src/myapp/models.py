@@ -51,14 +51,14 @@ class Sede(models.Model):
         ordering = ['created_at']
         db_table = 'sedes'
 
+enum_tipo_dias = [(1, 'Segunda e Quarta'), (2, 'Terça e Quinta')]
 
 class Turma(models.Model):
-    class TipoDias(models.IntegerChoices):
-        SEGUNDA_QUARTA = 1
-        TERCA_QUINTA = 2
+    def tipo_dias_serialized(self):
+        return enum_tipo_dias[self.tipo_dias - 1][1]
 
     sede = models.ForeignKey(Sede, on_delete=models.CASCADE)
-    tipo_dias = models.IntegerField(choices=TipoDias.choices)
+    tipo_dias = models.IntegerField(choices=enum_tipo_dias)
     horario = models.CharField(max_length=10)
     pessoa_professor = models.ForeignKey(
         Pessoa, on_delete=models.SET_NULL, null=True)

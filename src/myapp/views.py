@@ -129,6 +129,9 @@ class TurmaView(APIView):
             return Response(
                 data=[{
                     **TurmaSerializer(turma).data,
+                    'tipo_dias': turma.tipo_dias_serialized(),
+                    'professor': turma.pessoa_professor.nome,
+                    'sede': turma.sede.nome,
                     'alunos': [{
                         **TurmaAlunoSerializer(aluno).data,
                         **PessoaSerializer(aluno.pessoa_aluno).data
