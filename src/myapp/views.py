@@ -57,8 +57,10 @@ class PessoaView(APIView):
 
     def get(self, request, pk=None):
         _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
+        _user = User.objects.get(pk = request.user.id)
+        _is_password_initial = _user.check_password('123456')
         return Response(
-            data=PessoaSerializer(_pessoa).data,
+            data=PessoaSerializer(_pessoa).data | {'is_password_initial': _is_password_initial},
             status=status.HTTP_200_OK
         )
 
