@@ -156,6 +156,7 @@ class TurmaView(APIView):
             status=status.HTTP_200_OK
         )
 
+
 class TurmaAlunoView(APIView):
     def get_object(self, pk):
         try:
@@ -172,6 +173,7 @@ class TurmaAlunoView(APIView):
             data=TurmaAlunoSerializer(_turma).data,
             status=status.HTTP_200_OK
         )
+
 
 class TurmaAlunoPagamentoView(APIView):
     pix_identifier_prefix = 'ctispagamento'
@@ -267,21 +269,6 @@ class TurmaAlunoPagamentoView(APIView):
             status=status.HTTP_200_OK
         )
 
-    # def post(self, request):
-    #     _pessoa = Pessoa.objects.get(user_id=request.user.id)
-
-    #     for mes in range(1, 12):
-    #         novo_pagamento = TurmaAlunoPagamento(
-    #             pessoa_aluno_id=_pessoa.id,
-    #             mes_referencia=mes,
-    #             valor=115
-    #         )
-    #         novo_pagamento.save()
-
-    #     return Response(
-    #         data=TurmaAlunoPagamentoSerializer(novo_pagamento).data,
-    #         status=status.HTTP_200_OK
-    #     )
 
 class NotificacaoView(APIView):
     def post(self, request):
@@ -304,7 +291,7 @@ class NotificacaoView(APIView):
                     'data': {'pagamento_id': _pagamento_pendente.id},
                     'badge': 1
                 }
-            for _pagamento_pendente in _pagamentos_pendentes]
+            for _pagamento_pendente in _pagamentos_pendentes if _pagamento_pendente.turma_aluno.pessoa_aluno.expoPushToken is not None]
 
             send_notification(_notificacoes)
 
@@ -323,10 +310,5 @@ class NotificacaoView(APIView):
             send_notification(_notificacoes)
 
         return Response(
-            data={
-                # **TurmaAlunoPagamentoSerializer(pagamento).data,
-                # 'mes': pagamento.mes_referencia.mes_serialized(),
-                # 'status': pagamento.status_serialized()
-            },
             status=status.HTTP_200_OK
         )
