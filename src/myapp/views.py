@@ -247,6 +247,20 @@ class NotificacaoView(APIView):
 
             send_notification(_notificacoes)
 
+        if request.data.get('title'):
+            _pessoas = Pessoa.objects.all()
+            _notificacoes = [
+                {
+                    'to': pessoa.expoPushToken,
+                    'title': request.data.get('title'),
+                    'body': request.data.get('body'),
+                    'subtitle': request.data.get('subtitle'),
+                    'badge': 1
+                }
+            for pessoa in _pessoas if pessoa.expoPushToken is not None]
+
+            send_notification(_notificacoes)
+
         return Response(
             data={
                 # **TurmaAlunoPagamentoSerializer(pagamento).data,
