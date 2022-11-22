@@ -83,7 +83,9 @@ class PessoaView(APIView):
             _pessoa.expoPushToken = request.data['expoPushToken']
             _pessoa.save()
         if request.data.get('password'):
+            print("TROCA DE SENHA")
             _user = User.objects.get(pk=request.user.id)
+            print(_user)
             if not _user.check_password(request.data['password_old']):
                 return Response(
                     status=status.HTTP_401_UNAUTHORIZED
@@ -238,8 +240,6 @@ class NotificacaoView(APIView):
                     'badge': 1
                 }
             for _pagamento_pendente in _pagamentos_pendentes]
-            print('nots: ', _notificacoes)
-            print('pags', _pagamentos_pendentes)
 
             send_notification(_notificacoes)
 
