@@ -4,8 +4,8 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Pessoa, TurmaAlunoPagamento, TurmaAluno, Mes, Configuracoes
-from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, TurmaAlunoPagamentoSerializer
+from .models import Pessoa, TurmaAlunoPagamento, TurmaAluno, Mes, Configuracoes, Turma
+from .serializers import UserSerializer, GroupSerializer, PessoaSerializer, TurmaAlunoPagamentoSerializer, TurmaSerializer, TurmaAlunoSerializer
 from rest_framework import viewsets
 from django import get_version
 from django.views.generic import TemplateView
@@ -65,11 +65,10 @@ class PessoaView(APIView):
         )
 
     def post(self, request):
-        print("POST")
         # 1 - Parse input:
         _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
         # 2 - Create the User:
-        _user = User(username=_dict_inputs['telefone'], password='12345678')
+        _user = User.objects.create_user(username=_dict_inputs.pop('telefone'), password='123456')
         _user.save()
 
         _pessoa = Pessoa(user_id=_user.id, **_dict_inputs)
@@ -92,6 +91,10 @@ class PessoaView(APIView):
                 )
             _user.set_password(request.data['password'])
             _user.save()
+        if request.data.get('reset_password') is not None:
+            _user = User.objects.get(pk=request.data.get('reset_password'))
+            _user.set_password('123456')
+            _user.save()
         if request.data.get('data_vencimento') is not None:
             _pessoa.data_vencimento = request.data['data_vencimento']
             _pessoa.save()
@@ -109,6 +112,35 @@ class PessoaView(APIView):
 
         return Response(
             status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class TurmaView(APIView):
+    def get_object(self, pk):
+        try:
+            return Turma.objects.get(pk=pk)
+        except Pessoa.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=None):
+        # INDEX
+        if pk is None:
+            _all_turmas = Turma.objects.all()
+            return Response(
+                data=[{
+                    **TurmaSerializer(turma).data,
+                    'alunos': [{
+                        **TurmaAlunoSerializer(aluno).data,
+                        **PessoaSerializer(aluno.pessoa_aluno).data
+                    } for aluno in TurmaAluno.objects.filter(turma = turma).all()]
+                } for turma in _all_turmas],
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            data={
+            },
+            status=status.HTTP_200_OK
         )
 
 

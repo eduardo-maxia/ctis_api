@@ -21,7 +21,7 @@ from django.conf import settings
 from django.urls import include, path
 from rest_framework import routers
 
-from myapp.views import ShowHelloWorld, UserViewSet, GroupViewSet, TurmaAlunoPagamentoView, PessoaView, NotificacaoView
+from myapp.views import ShowHelloWorld, UserViewSet, GroupViewSet, TurmaAlunoPagamentoView, PessoaView, NotificacaoView, TurmaView
 from rest_framework.authtoken import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -39,6 +39,8 @@ urlpatterns = [
 
     path('pessoas/', PessoaView.as_view()),
     path('pessoas/<int:pk>/', PessoaView.as_view()),
+
+    path('turmas/', TurmaView.as_view()),
 
     path('turma_aluno_pagamentos/', TurmaAlunoPagamentoView.as_view()),
     path('turma_aluno_pagamentos/<int:pk>/', TurmaAlunoPagamentoView.as_view()),
