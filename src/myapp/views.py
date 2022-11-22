@@ -93,6 +93,10 @@ class PessoaView(APIView):
         if request.data.get('data_vencimento') is not None:
             _pessoa.data_vencimento = request.data['data_vencimento']
             _pessoa.save()
+        if request.data.get('telefone') is not None:
+            _user = User.objects.get(pk = request.user.id)
+            _user.username = request.data['telefone']
+            _user.save()
         return Response(
             status=status.HTTP_200_OK
         )
