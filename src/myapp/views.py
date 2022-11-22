@@ -78,6 +78,7 @@ class PessoaView(APIView):
         )
 
     def patch(self, request, pk=None):
+        print(request.data)
         _pessoa = Pessoa.objects.get(user = request.user.id) if pk is None else self.get_object(pk)
         if request.data.get('expoPushToken'):
             _pessoa.expoPushToken = request.data['expoPushToken']
