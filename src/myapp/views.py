@@ -62,6 +62,7 @@ class PessoaView(APIView):
         return Response(
             data=PessoaSerializer(_pessoa).data | {
                 'is_password_initial': _is_password_initial,
+                'telefone': _pessoa.user.username,
                 'turmas': [
                     TurmaSerializer(turma_aluno.turma).data | {
                         'tipo_dias': turma_aluno.turma.tipo_dias_serialized(),
