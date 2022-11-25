@@ -21,16 +21,11 @@ class Pessoa(models.Model):
         ALUNO_ADULTO = 3
         ALUNO_INFANTIL = 4
 
-    class Status(models.IntegerChoices):
-        ATIVO = 1
-        INATIVO = 2
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     tipo_pessoa = models.IntegerField(choices=TipoPessoa.choices)
     nome = models.CharField(max_length=30)
     nome_responsavel = models.CharField(max_length=30, blank=True)
-    data_vencimento = models.IntegerField(choices=Status.choices, null=True)
-    status = models.IntegerField(choices=Status.choices, default=Status.ATIVO)
+    data_vencimento = models.IntegerField(null=True)
     expoPushToken = models.CharField(max_length=50, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -72,8 +67,13 @@ class Turma(models.Model):
 
 
 class TurmaAluno(models.Model):
+    class Status(models.IntegerChoices):
+        ATIVO = 1
+        INATIVO = 2
+
     turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
     pessoa_aluno = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
+    status = models.IntegerField(choices=Status.choices, default=Status.ATIVO)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

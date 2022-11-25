@@ -43,6 +43,7 @@ urlpatterns = [
     path('turmas/', TurmaView.as_view()),
 
     path('turma_alunos/', TurmaAlunoView.as_view()),
+    path('turma_alunos/<int:pk>/', TurmaAlunoView.as_view()),
 
     path('turma_aluno_pagamentos/', TurmaAlunoPagamentoView.as_view()),
     path('turma_aluno_pagamentos/<int:pk>/', TurmaAlunoPagamentoView.as_view()),

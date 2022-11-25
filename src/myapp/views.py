@@ -68,8 +68,9 @@ class PessoaView(APIView):
                         'tipo_dias': turma_aluno.turma.tipo_dias_serialized(),
                         'professor': turma_aluno.turma.pessoa_professor.nome,
                         'sede': turma_aluno.turma.sede.nome,
+                        'turma_aluno_id': turma_aluno.id
                     }
-                for turma_aluno in TurmaAluno.objects.select_related('turma').filter(pessoa_aluno = _pessoa).all()]
+                for turma_aluno in TurmaAluno.objects.select_related('turma').filter(pessoa_aluno = _pessoa, status = 1).all()]
             },
             status=status.HTTP_200_OK
         )
@@ -143,9 +144,9 @@ class TurmaView(APIView):
                     'professor': turma.pessoa_professor.nome,
                     'sede': turma.sede.nome,
                     'alunos': [{
+                        **PessoaSerializer(aluno.pessoa_aluno).data,
                         **TurmaAlunoSerializer(aluno).data,
-                        **PessoaSerializer(aluno.pessoa_aluno).data
-                    } for aluno in TurmaAluno.objects.filter(turma = turma).all()]
+                    } for aluno in TurmaAluno.objects.filter(turma = turma, status = 1).all()]
                 } for turma in _all_turmas],
                 status=status.HTTP_200_OK
             )
@@ -170,17 +171,36 @@ class TurmaView(APIView):
 class TurmaAlunoView(APIView):
     def get_object(self, pk):
         try:
-            return Turma.objects.get(pk=pk)
+            return TurmaAluno.objects.get(pk=pk)
         except Pessoa.DoesNotExist:
             raise Http404
+
+    def get(self, request, pk):
+        _turma_aluno = self.get_object(pk)
+
+        return Response(
+            data=TurmaAlunoSerializer(_turma_aluno).data,
+            status=status.HTTP_200_OK
+        )
+
+    def patch(self, request, pk):
+        _turma_aluno = self.get_object(pk)
+        if request.data.get('status') is not None:
+            _turma_aluno.status = request.data['status']
+            _turma_aluno.save()
+
+        return Response(
+            data=TurmaAlunoSerializer(_turma_aluno).data,
+            status=status.HTTP_200_OK
+        )
 
     def post(self, request):
         _dict_inputs = {el[0]: el[1][0] for el in {**request.data}.items()}
 
-        _turma = TurmaAluno(**_dict_inputs)
-        _turma.save()
+        _turma_aluno = TurmaAluno(**_dict_inputs)
+        _turma_aluno.save()
         return Response(
-            data=TurmaAlunoSerializer(_turma).data,
+            data=TurmaAlunoSerializer(_turma_aluno).data,
             status=status.HTTP_200_OK
         )
 
